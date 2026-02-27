@@ -5,7 +5,10 @@
 [![RDFLib](https://img.shields.io/badge/RDFLib-7.0-green)](https://rdflib.readthedocs.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 [![HuggingFace](https://img.shields.io/badge/🤗-Live%20Demo-orange)](https://huggingface.co/spaces/YOUR_USERNAME/solargraph-ai)
-![SolarGraph AI](docs/images/screenshot.png)
+
+![SolarGraph AI: Home](docs/images/screenshot1.png)
+![SolarGraph AI: Ask](docs/images/screenshot2.png)
+![SolarGraph AI: Knowledge Graph](docs/images/screenshot3.png)
 
 A research prototype demonstrating **grounded LLM agents** over a formal **RDF/OWL knowledge graph** for photovoltaic (PV) solar energy and materials science. Every answer is traceable to specific SPARQL-retrieved triples — no hallucinations, full provenance.
 

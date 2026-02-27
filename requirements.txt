@@ -1,0 +1,6 @@
+flask>=3.0
+rdflib>=7.0
+groq>=0.9
+python-dotenv>=1.0
+requests>=2.31
+gradio>=4.0

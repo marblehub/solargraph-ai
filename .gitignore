@@ -1,0 +1,31 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+*.egg-info/
+
+# App runtime — generated, not source
+graph.pkl
+cache.json
+react_cache.json
+app.log
+*.log
+
+# Environment — never commit secrets
+.env
+*.example
+
+# PyVis leftover local vis.js library (CDN is used instead)
+lib/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+
+# ingested_papers.json is intentionally tracked (audit log of what was ingested)

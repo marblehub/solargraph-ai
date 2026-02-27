@@ -1,0 +1,723 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix pv:   <http://example.org/pvsolar#> .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  Ontology Declaration
+# ═══════════════════════════════════════════════════════════════════════════════
+<http://example.org/pvsolar> a owl:Ontology ;
+    rdfs:label "PV Solar & Materials Science Engineering Ontology" ;
+    rdfs:comment "Knowledge graph covering photovoltaic solar energy, semiconductor materials, cell architectures, fabrication processes, defects, characterisation techniques, and leading research institutions." .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  CLASSES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+pv:Material a owl:Class ;
+    rdfs:label "Material" ;
+    rdfs:comment "Any solid-state or thin-film material relevant to PV devices." .
+
+pv:Semiconductor a owl:Class ;
+    rdfs:subClassOf pv:Material ;
+    rdfs:label "Semiconductor" ;
+    rdfs:comment "Material with a bandgap suitable for solar energy conversion." .
+
+pv:Absorber a owl:Class ;
+    rdfs:subClassOf pv:Semiconductor ;
+    rdfs:label "Absorber Layer" ;
+    rdfs:comment "Light-absorbing semiconductor layer in a PV cell." .
+
+pv:TransportLayer a owl:Class ;
+    rdfs:subClassOf pv:Material ;
+    rdfs:label "Charge Transport Layer" ;
+    rdfs:comment "Electron or hole transport layer in a PV device stack." .
+
+pv:Electrode a owl:Class ;
+    rdfs:subClassOf pv:Material ;
+    rdfs:label "Electrode" ;
+    rdfs:comment "Front or back contact electrode material." .
+
+pv:Encapsulant a owl:Class ;
+    rdfs:subClassOf pv:Material ;
+    rdfs:label "Encapsulant" ;
+    rdfs:comment "Polymer or glass used to protect PV cells from environmental stress." .
+
+pv:CellArchitecture a owl:Class ;
+    rdfs:label "Cell Architecture" ;
+    rdfs:comment "A specific PV device stack configuration (e.g., p-i-n, n-i-p, tandem)." .
+
+pv:FabricationProcess a owl:Class ;
+    rdfs:label "Fabrication Process" ;
+    rdfs:comment "A deposition or processing method used in PV manufacturing." .
+
+pv:CharacterisationTechnique a owl:Class ;
+    rdfs:label "Characterisation Technique" ;
+    rdfs:comment "Experimental method for measuring material or device properties." .
+
+pv:Defect a owl:Class ;
+    rdfs:label "Defect" ;
+    rdfs:comment "Structural or electronic defect in a PV material that reduces performance." .
+
+pv:PerformanceMetric a owl:Class ;
+    rdfs:label "Performance Metric" ;
+    rdfs:comment "A measurable figure of merit for a PV material or device." .
+
+pv:DegradationMechanism a owl:Class ;
+    rdfs:label "Degradation Mechanism" ;
+    rdfs:comment "Physical or chemical mechanism causing PV performance loss over time." .
+
+pv:Institution a owl:Class ;
+    rdfs:label "Institution" ;
+    rdfs:comment "University, national laboratory, or company active in PV research or manufacturing." .
+
+pv:Researcher a owl:Class ;
+    rdfs:label "Researcher" ;
+    rdfs:comment "A scientist or engineer contributing to PV or materials science research." .
+
+pv:StandardTest a owl:Class ;
+    rdfs:label "Standard Test Condition" ;
+    rdfs:comment "Defined conditions under which PV performance is officially measured." .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  OBJECT PROPERTIES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+pv:usedIn a owl:ObjectProperty ;
+    rdfs:label "used in" ;
+    rdfs:domain pv:Material ;
+    rdfs:range  pv:CellArchitecture .
+
+pv:fabricatedBy a owl:ObjectProperty ;
+    rdfs:label "fabricated by" ;
+    rdfs:domain pv:Material ;
+    rdfs:range  pv:FabricationProcess .
+
+pv:characterisedBy a owl:ObjectProperty ;
+    rdfs:label "characterised by" ;
+    rdfs:domain pv:Material ;
+    rdfs:range  pv:CharacterisationTechnique .
+
+pv:hasDefect a owl:ObjectProperty ;
+    rdfs:label "has defect" ;
+    rdfs:domain pv:Semiconductor ;
+    rdfs:range  pv:Defect .
+
+pv:measuredBy a owl:ObjectProperty ;
+    rdfs:label "measured by" ;
+    rdfs:domain pv:PerformanceMetric ;
+    rdfs:range  pv:CharacterisationTechnique .
+
+pv:affectsMetric a owl:ObjectProperty ;
+    rdfs:label "affects metric" ;
+    rdfs:domain pv:Defect ;
+    rdfs:range  pv:PerformanceMetric .
+
+pv:causedBy a owl:ObjectProperty ;
+    rdfs:label "caused by" ;
+    rdfs:domain pv:DegradationMechanism ;
+    rdfs:range  pv:Defect .
+
+pv:studiedAt a owl:ObjectProperty ;
+    rdfs:label "studied at" ;
+    rdfs:domain pv:Researcher ;
+    rdfs:range  pv:Institution .
+
+pv:researches a owl:ObjectProperty ;
+    rdfs:label "researches" ;
+    rdfs:domain pv:Researcher ;
+    rdfs:range  pv:Material .
+
+pv:developedBy a owl:ObjectProperty ;
+    rdfs:label "developed by" ;
+    rdfs:domain pv:CellArchitecture ;
+    rdfs:range  pv:Institution .
+
+pv:mitigatedBy a owl:ObjectProperty ;
+    rdfs:label "mitigated by" ;
+    rdfs:domain pv:Defect ;
+    rdfs:range  pv:FabricationProcess .
+
+pv:compatibleWith a owl:ObjectProperty ;
+    rdfs:label "compatible with" ;
+    rdfs:domain pv:Material ;
+    rdfs:range  pv:Material .
+
+pv:relatedTo a owl:ObjectProperty ;
+    rdfs:label "related to" ;
+    rdfs:domain owl:Thing ;
+    rdfs:range  owl:Thing .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  DATA PROPERTIES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+pv:name a owl:DatatypeProperty ;
+    rdfs:label "name" ;
+    rdfs:range xsd:string .
+
+pv:description a owl:DatatypeProperty ;
+    rdfs:label "description" ;
+    rdfs:range xsd:string .
+
+pv:bandgap_eV a owl:DatatypeProperty ;
+    rdfs:label "bandgap (eV)" ;
+    rdfs:domain pv:Semiconductor ;
+    rdfs:range  xsd:decimal .
+
+pv:recordEfficiency_pct a owl:DatatypeProperty ;
+    rdfs:label "record efficiency (%)" ;
+    rdfs:domain pv:CellArchitecture ;
+    rdfs:range  xsd:decimal .
+
+pv:crystalStructure a owl:DatatypeProperty ;
+    rdfs:label "crystal structure" ;
+    rdfs:range xsd:string .
+
+pv:depositionTemp_C a owl:DatatypeProperty ;
+    rdfs:label "deposition temperature (C)" ;
+    rdfs:domain pv:FabricationProcess ;
+    rdfs:range  xsd:decimal .
+
+pv:unit a owl:DatatypeProperty ;
+    rdfs:label "unit" ;
+    rdfs:domain pv:PerformanceMetric ;
+    rdfs:range  xsd:string .
+
+pv:typicalRange a owl:DatatypeProperty ;
+    rdfs:label "typical range" ;
+    rdfs:domain pv:PerformanceMetric ;
+    rdfs:range  xsd:string .
+
+pv:country a owl:DatatypeProperty ;
+    rdfs:label "country" ;
+    rdfs:domain pv:Institution ;
+    rdfs:range  xsd:string .
+
+pv:founded a owl:DatatypeProperty ;
+    rdfs:label "founded" ;
+    rdfs:domain pv:Institution ;
+    rdfs:range  xsd:gYear .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  ABSORBER MATERIALS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+pv:MonocrystallineSilicon a pv:Absorber ;
+    pv:name "Monocrystalline Silicon (c-Si)" ;
+    pv:description "Single-crystal silicon; the dominant commercial PV absorber with high efficiency and long operational lifetime exceeding 30 years." ;
+    pv:bandgap_eV "1.12"^^xsd:decimal ;
+    pv:crystalStructure "Diamond cubic" ;
+    pv:usedIn pv:SHJ_Cell, pv:PERC_Cell, pv:TOPCon_Cell, pv:TandemSiliconPerovskite ;
+    pv:characterisedBy pv:TRPL, pv:EQE, pv:EL ;
+    pv:fabricatedBy pv:Czochralski, pv:PECVD .
+
+pv:PolycrystallineSilicon a pv:Absorber ;
+    pv:name "Polycrystalline Silicon (mc-Si)" ;
+    pv:description "Multi-grain silicon wafer; lower cost than monocrystalline but reduced efficiency due to grain-boundary recombination." ;
+    pv:bandgap_eV "1.12"^^xsd:decimal ;
+    pv:crystalStructure "Polycrystalline" ;
+    pv:usedIn pv:PERC_Cell ;
+    pv:hasDefect pv:GrainBoundaryTrap .
+
+pv:MAPbI3 a pv:Absorber ;
+    pv:name "Methylammonium Lead Iodide (MAPbI3)" ;
+    pv:description "Prototypical halide perovskite absorber with tuneable bandgap, high absorption coefficient, and defect tolerance — but prone to moisture and heat degradation." ;
+    pv:bandgap_eV "1.55"^^xsd:decimal ;
+    pv:crystalStructure "Cubic ABX3 perovskite" ;
+    pv:usedIn pv:NIP_Perovskite, pv:PIN_Perovskite ;
+    pv:hasDefect pv:IodideVacancy, pv:GrainBoundaryTrap ;
+    pv:characterisedBy pv:XRD, pv:PL, pv:TRPL, pv:SEM ;
+    pv:fabricatedBy pv:SpinCoating, pv:SlotDieCoating, pv:SprayCoating .
+
+pv:FAPbI3 a pv:Absorber ;
+    pv:name "Formamidinium Lead Iodide (FAPbI3)" ;
+    pv:description "More thermally stable perovskite absorber than MAPbI3; the alpha-phase is required for efficient photovoltaics and can revert to inactive delta-phase." ;
+    pv:bandgap_eV "1.48"^^xsd:decimal ;
+    pv:crystalStructure "Pseudo-cubic perovskite (alpha-phase)" ;
+    pv:usedIn pv:NIP_Perovskite, pv:PIN_Perovskite ;
+    pv:hasDefect pv:PhaseSeparation, pv:IodideVacancy ;
+    pv:characterisedBy pv:XRD, pv:PL, pv:TRPL ;
+    pv:fabricatedBy pv:SpinCoating, pv:SlotDieCoating .
+
+pv:CIGSSe a pv:Absorber ;
+    pv:name "CIGS (Cu(In,Ga)Se2)" ;
+    pv:description "Chalcopyrite thin-film absorber with tuneable bandgap by varying In/Ga ratio. Excellent radiation hardness for space applications." ;
+    pv:bandgap_eV "1.15"^^xsd:decimal ;
+    pv:crystalStructure "Chalcopyrite" ;
+    pv:usedIn pv:CIGS_Cell ;
+    pv:hasDefect pv:CuVacancy, pv:InterfaceRecombination ;
+    pv:characterisedBy pv:XRD, pv:SEM, pv:EQE ;
+    pv:fabricatedBy pv:CoEvaporation .
+
+pv:CdTe a pv:Absorber ;
+    pv:name "Cadmium Telluride (CdTe)" ;
+    pv:description "Binary compound thin-film absorber with high absorption coefficient and near-ideal bandgap. Concerns exist around Cd toxicity." ;
+    pv:bandgap_eV "1.44"^^xsd:decimal ;
+    pv:crystalStructure "Zinc blende" ;
+    pv:usedIn pv:CdTe_Cell ;
+    pv:hasDefect pv:CdVacancy, pv:InterfaceRecombination ;
+    pv:characterisedBy pv:XRD, pv:TEM, pv:DLTS .
+
+pv:GaAs a pv:Absorber ;
+    pv:name "Gallium Arsenide (GaAs)" ;
+    pv:description "III-V direct-bandgap semiconductor with highest single-junction efficiency; used in concentrator PV and space applications." ;
+    pv:bandgap_eV "1.42"^^xsd:decimal ;
+    pv:crystalStructure "Zinc blende" ;
+    pv:usedIn pv:ConcentratorPV, pv:MultiJunction_Cell .
+
+pv:OrganicBHJ a pv:Absorber ;
+    pv:name "Organic Bulk Heterojunction (BHJ)" ;
+    pv:description "Blend of electron donor and acceptor organic semiconductors enabling flexible, low-cost PV with moderate efficiency." ;
+    pv:bandgap_eV "1.60"^^xsd:decimal ;
+    pv:crystalStructure "Amorphous/semi-crystalline" ;
+    pv:usedIn pv:OPV_Cell .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  TRANSPORT LAYERS & ELECTRODES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+pv:SpiroOMeTAD a pv:TransportLayer ;
+    pv:name "Spiro-OMeTAD" ;
+    pv:description "Most widely used hole transport material in n-i-p perovskite cells; requires dopants (LiTFSI, FK209) for adequate conductivity." ;
+    pv:usedIn pv:NIP_Perovskite ;
+    pv:compatibleWith pv:MAPbI3, pv:FAPbI3 .
+
+pv:PTAA a pv:TransportLayer ;
+    pv:name "PTAA (Polymeric Hole Transport Layer)" ;
+    pv:description "Polymeric hole transport layer used in high-efficiency inverted (p-i-n) perovskite cells; better stability than Spiro-OMeTAD." ;
+    pv:usedIn pv:PIN_Perovskite ;
+    pv:compatibleWith pv:MAPbI3, pv:FAPbI3 .
+
+pv:TiO2 a pv:TransportLayer ;
+    pv:name "Titanium Dioxide (TiO2)" ;
+    pv:description "Electron transport layer in n-i-p perovskite and dye-sensitised solar cells; compact and mesoporous forms are both used." ;
+    pv:usedIn pv:NIP_Perovskite ;
+    pv:fabricatedBy pv:SpinCoating, pv:SprayPyrolysis ;
+    pv:compatibleWith pv:MAPbI3 .
+
+pv:SnO2 a pv:TransportLayer ;
+    pv:name "Tin Oxide (SnO2)" ;
+    pv:description "Low-temperature processable electron transport layer with better UV stability than TiO2; dominant in high-efficiency perovskite cells." ;
+    pv:usedIn pv:PIN_Perovskite, pv:NIP_Perovskite ;
+    pv:fabricatedBy pv:ChemicalBathDeposition, pv:SpinCoating ;
+    pv:compatibleWith pv:MAPbI3, pv:FAPbI3 .
+
+pv:C60 a pv:TransportLayer ;
+    pv:name "Fullerene C60" ;
+    pv:description "Electron acceptor and ETL in inverted perovskite and organic PV cells; excellent electron mobility and energy alignment." ;
+    pv:usedIn pv:PIN_Perovskite, pv:OPV_Cell ;
+    pv:compatibleWith pv:MAPbI3 .
+
+pv:ITO a pv:Electrode ;
+    pv:name "Indium Tin Oxide (ITO)" ;
+    pv:description "Standard transparent front electrode for thin-film and perovskite solar cells with high transparency and conductivity." ;
+    pv:usedIn pv:PIN_Perovskite, pv:NIP_Perovskite, pv:CIGS_Cell, pv:OPV_Cell ;
+    pv:fabricatedBy pv:Sputtering .
+
+pv:AluminiumBack a pv:Electrode ;
+    pv:name "Aluminium Back Contact" ;
+    pv:description "Evaporated aluminium rear electrode standard in silicon PERC and CIGS thin-film cells." ;
+    pv:usedIn pv:PERC_Cell, pv:CIGS_Cell .
+
+pv:EVA a pv:Encapsulant ;
+    pv:name "Ethylene-Vinyl Acetate (EVA)" ;
+    pv:description "Standard encapsulant polymer for crystalline Si modules; provides mechanical protection and acts as a moisture barrier." .
+
+pv:POE a pv:Encapsulant ;
+    pv:name "Polyolefin Elastomer (POE)" ;
+    pv:description "Low moisture permeability encapsulant preferred for bifacial and perovskite modules due to superior hydrophobicity." .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  CELL ARCHITECTURES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+pv:PERC_Cell a pv:CellArchitecture ;
+    pv:name "PERC (Passivated Emitter and Rear Cell)" ;
+    pv:description "Silicon cell with rear Al2O3/SiNx passivation layer to reduce back-surface recombination. Currently the dominant commercial architecture." ;
+    pv:recordEfficiency_pct "24.5"^^xsd:decimal ;
+    pv:developedBy pv:LONGi .
+
+pv:TOPCon_Cell a pv:CellArchitecture ;
+    pv:name "TOPCon (Tunnel Oxide Passivated Contact)" ;
+    pv:description "Silicon cell with ultra-thin tunnel SiO2 and doped poly-Si passivating contact layer; achieves very high Voc." ;
+    pv:recordEfficiency_pct "26.1"^^xsd:decimal ;
+    pv:developedBy pv:LONGi .
+
+pv:SHJ_Cell a pv:CellArchitecture ;
+    pv:name "SHJ (Silicon Heterojunction)" ;
+    pv:description "Combines crystalline silicon with amorphous silicon (a-Si:H) intrinsic passivation layers; excellent Voc, bifaciality, and low temperature coefficient." ;
+    pv:recordEfficiency_pct "26.8"^^xsd:decimal ;
+    pv:developedBy pv:Fraunhofer_ISE .
+
+pv:NIP_Perovskite a pv:CellArchitecture ;
+    pv:name "n-i-p Perovskite Solar Cell" ;
+    pv:description "Standard perovskite stack: ETL (TiO2 or SnO2) on bottom, perovskite absorber in middle, HTL (Spiro-OMeTAD) on top." ;
+    pv:recordEfficiency_pct "26.1"^^xsd:decimal .
+
+pv:PIN_Perovskite a pv:CellArchitecture ;
+    pv:name "p-i-n Inverted Perovskite Solar Cell" ;
+    pv:description "Inverted perovskite stack with HTL (PTAA/NiOx) at the bottom; better operational stability and compatible with tandem integration." ;
+    pv:recordEfficiency_pct "25.1"^^xsd:decimal .
+
+pv:TandemSiliconPerovskite a pv:CellArchitecture ;
+    pv:name "Perovskite/Silicon Tandem Cell" ;
+    pv:description "Two-junction monolithic device combining perovskite top cell (~1.65 eV) with silicon bottom cell (~1.12 eV); exceeds single-junction Shockley-Queisser limit." ;
+    pv:recordEfficiency_pct "33.9"^^xsd:decimal ;
+    pv:developedBy pv:KAUST, pv:HZB .
+
+pv:MultiJunction_Cell a pv:CellArchitecture ;
+    pv:name "Multi-Junction III-V Cell" ;
+    pv:description "Three or more junctions (e.g., InGaP/GaAs/Ge) each tuned to different spectral regions; highest terrestrial efficiency under concentration." ;
+    pv:recordEfficiency_pct "47.6"^^xsd:decimal ;
+    pv:developedBy pv:NREL .
+
+pv:CIGS_Cell a pv:CellArchitecture ;
+    pv:name "CIGS Thin-Film Cell" ;
+    pv:description "Chalcopyrite thin-film stack on glass or flexible substrate; low material usage and excellent low-light performance." ;
+    pv:recordEfficiency_pct "23.4"^^xsd:decimal .
+
+pv:CdTe_Cell a pv:CellArchitecture ;
+    pv:name "CdTe Thin-Film Cell" ;
+    pv:description "Cadmium telluride thin-film on glass; second largest commercial thin-film technology, dominated by First Solar." ;
+    pv:recordEfficiency_pct "22.3"^^xsd:decimal ;
+    pv:developedBy pv:FirstSolar .
+
+pv:OPV_Cell a pv:CellArchitecture ;
+    pv:name "Organic PV (OPV) Cell" ;
+    pv:description "Carbon-based bulk heterojunction organic absorber enabling semi-transparent, flexible, roll-to-roll processable modules." ;
+    pv:recordEfficiency_pct "19.2"^^xsd:decimal .
+
+pv:ConcentratorPV a pv:CellArchitecture ;
+    pv:name "Concentrator PV (CPV)" ;
+    pv:description "Uses optical lenses or mirrors to concentrate sunlight 500-1000x onto high-efficiency III-V cells; requires two-axis tracking." ;
+    pv:recordEfficiency_pct "47.6"^^xsd:decimal ;
+    pv:developedBy pv:NREL .
+
+pv:DSC_Cell a pv:CellArchitecture ;
+    pv:name "Dye-Sensitised Solar Cell (DSSC)" ;
+    pv:description "Dye-sensitised mesoporous TiO2 photoanode with liquid or gel electrolyte; suited for indoor and building-integrated applications." ;
+    pv:recordEfficiency_pct "14.3"^^xsd:decimal ;
+    pv:developedBy pv:EPFL .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  FABRICATION PROCESSES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+pv:SpinCoating a pv:FabricationProcess ;
+    pv:name "Spin Coating" ;
+    pv:description "Solution-based deposition by spinning substrate at high speed; standard laboratory method for perovskite absorbers and transport layers." ;
+    pv:depositionTemp_C "100"^^xsd:decimal .
+
+pv:SprayCoating a pv:FabricationProcess ;
+    pv:name "Spray Coating" ;
+    pv:description "Scalable deposition by atomising precursor solution onto a substrate; suited for large-area PV manufacturing." .
+
+pv:SlotDieCoating a pv:FabricationProcess ;
+    pv:name "Slot-Die Coating" ;
+    pv:description "Meniscus-guided continuous coating method for roll-to-roll deposition of perovskite and organic layers at scale." .
+
+pv:CVD a pv:FabricationProcess ;
+    pv:name "Chemical Vapour Deposition (CVD)" ;
+    pv:description "Gas-phase precursor decomposition to deposit thin films; used for SiNx passivation and poly-Si contacts in silicon PV." ;
+    pv:depositionTemp_C "400"^^xsd:decimal .
+
+pv:PECVD a pv:FabricationProcess ;
+    pv:name "Plasma-Enhanced CVD (PECVD)" ;
+    pv:description "CVD assisted by plasma enabling low-temperature deposition of a-Si:H passivation layers for silicon heterojunction cells." ;
+    pv:depositionTemp_C "200"^^xsd:decimal .
+
+pv:Sputtering a pv:FabricationProcess ;
+    pv:name "Magnetron Sputtering" ;
+    pv:description "Physical vapour deposition by energetic ion bombardment; used for ITO, ZnO, and metal back contacts." .
+
+pv:CoEvaporation a pv:FabricationProcess ;
+    pv:name "Co-Evaporation" ;
+    pv:description "Simultaneous thermal evaporation of Cu, In, Ga sources in a selenium atmosphere to form high-quality CIGS absorber layers." ;
+    pv:depositionTemp_C "550"^^xsd:decimal .
+
+pv:ChemicalBathDeposition a pv:FabricationProcess ;
+    pv:name "Chemical Bath Deposition (CBD)" ;
+    pv:description "Wet-chemical growth of CdS, ZnS, or SnO2 buffer layers from aqueous solution at low temperature." ;
+    pv:depositionTemp_C "60"^^xsd:decimal .
+
+pv:SprayPyrolysis a pv:FabricationProcess ;
+    pv:name "Spray Pyrolysis" ;
+    pv:description "Aerosol of precursor solution thermally decomposed on a heated substrate; used to form compact TiO2 and FTO layers." ;
+    pv:depositionTemp_C "450"^^xsd:decimal .
+
+pv:Czochralski a pv:FabricationProcess ;
+    pv:name "Czochralski Process" ;
+    pv:description "Crystal growth technique for pulling a monocrystalline silicon ingot from a melt; primary method for high-purity c-Si wafer production." ;
+    pv:depositionTemp_C "1420"^^xsd:decimal .
+
+pv:LaserScribing a pv:FabricationProcess ;
+    pv:name "Laser Scribing" ;
+    pv:description "Patterning of thin-film modules by laser ablation to create P1, P2, P3 scribe lines for monolithic series interconnection." .
+
+pv:ThermalAnnealing a pv:FabricationProcess ;
+    pv:name "Thermal Annealing" ;
+    pv:description "Post-deposition heat treatment to crystallise perovskite, evaporate residual solvents, and passivate grain boundary defects." ;
+    pv:depositionTemp_C "150"^^xsd:decimal .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  CHARACTERISATION TECHNIQUES
+# ═══════════════════════════════════════════════════════════════════════════════
+
+pv:JVCurve a pv:CharacterisationTechnique ;
+    pv:name "Current-Voltage (J-V) Characterisation" ;
+    pv:description "Primary device measurement yielding PCE, Voc, Jsc, and FF under standard AM1.5G illumination at 100 mW/cm2." .
+
+pv:EQE a pv:CharacterisationTechnique ;
+    pv:name "External Quantum Efficiency (EQE)" ;
+    pv:description "Wavelength-resolved ratio of collected electrons to incident photons; reveals spectral response and optical loss mechanisms." .
+
+pv:PL a pv:CharacterisationTechnique ;
+    pv:name "Photoluminescence (PL) Spectroscopy" ;
+    pv:description "Optical emission spectroscopy after photoexcitation; assesses radiative recombination quality and quasi-Fermi level splitting." .
+
+pv:TRPL a pv:CharacterisationTechnique ;
+    pv:name "Time-Resolved Photoluminescence (TRPL)" ;
+    pv:description "Measures minority carrier lifetime and non-radiative recombination dynamics via time-decay of photoluminescence signal." .
+
+pv:XRD a pv:CharacterisationTechnique ;
+    pv:name "X-Ray Diffraction (XRD)" ;
+    pv:description "Determines crystal structure, phase composition, lattice parameters, and crystallite size in PV absorber and transport layers." .
+
+pv:SEM a pv:CharacterisationTechnique ;
+    pv:name "Scanning Electron Microscopy (SEM)" ;
+    pv:description "High-resolution surface and cross-sectional imaging of thin-film morphology, grain size, and layer thickness." .
+
+pv:TEM a pv:CharacterisationTechnique ;
+    pv:name "Transmission Electron Microscopy (TEM)" ;
+    pv:description "Atomic-resolution imaging and diffraction of PV layer cross-sections revealing interface quality and defect structures." .
+
+pv:DLTS a pv:CharacterisationTechnique ;
+    pv:name "Deep Level Transient Spectroscopy (DLTS)" ;
+    pv:description "Identifies deep-level defect energy levels and capture cross-sections in semiconductors from capacitance transients vs temperature." .
+
+pv:UVVis a pv:CharacterisationTechnique ;
+    pv:name "UV-Vis Spectrophotometry" ;
+    pv:description "Measures optical absorbance and transmittance to extract bandgap (via Tauc plot) and quantify optical losses." .
+
+pv:EL a pv:CharacterisationTechnique ;
+    pv:name "Electroluminescence (EL) Imaging" ;
+    pv:description "Forward-biased module or cell imaging to detect shunts, cracks, and inactive regions by near-IR photon emission." .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  DEFECTS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+pv:IodideVacancy a pv:Defect ;
+    pv:name "Iodide Vacancy (V_I)" ;
+    pv:description "Most abundant intrinsic point defect in halide perovskites; forms shallow or deep trap states and enables harmful ion migration." ;
+    pv:affectsMetric pv:PCE, pv:Voc ;
+    pv:mitigatedBy pv:ThermalAnnealing .
+
+pv:GrainBoundaryTrap a pv:Defect ;
+    pv:name "Grain Boundary Trap States" ;
+    pv:description "Non-radiative recombination centres concentrated at polycrystalline grain boundaries in perovskite and silicon thin films." ;
+    pv:affectsMetric pv:PCE, pv:FF ;
+    pv:mitigatedBy pv:ThermalAnnealing .
+
+pv:PhaseSeparation a pv:Defect ;
+    pv:name "Phase Instability (Delta-Phase)" ;
+    pv:description "Transformation of photoactive alpha-FAPbI3 to the inactive delta-phase under humidity or sub-zero temperatures; major stability concern." ;
+    pv:affectsMetric pv:PCE .
+
+pv:CuVacancy a pv:Defect ;
+    pv:name "Copper Vacancy (V_Cu) in CIGS" ;
+    pv:description "Dominant acceptor defect in CIGS absorber; controls p-type conductivity but excess vacancies accelerate recombination." ;
+    pv:affectsMetric pv:Voc .
+
+pv:CdVacancy a pv:Defect ;
+    pv:name "Cadmium Vacancy (V_Cd) in CdTe" ;
+    pv:description "Acceptor defect in CdTe; important for p-type doping but can pin the Fermi level and increase interface recombination." ;
+    pv:affectsMetric pv:Voc, pv:FF .
+
+pv:InterfaceRecombination a pv:Defect ;
+    pv:name "Interface Recombination" ;
+    pv:description "Non-radiative recombination at heterojunction interfaces (e.g., absorber/ETL, absorber/HTL); primary Voc loss mechanism in thin-film cells." ;
+    pv:affectsMetric pv:Voc, pv:PCE .
+
+pv:LID a pv:Defect ;
+    pv:name "Light-Induced Degradation (LID)" ;
+    pv:description "Efficiency loss in boron-doped c-Si wafers upon initial illumination caused by formation of boron-oxygen complexes." ;
+    pv:affectsMetric pv:PCE .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  PERFORMANCE METRICS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+pv:PCE a pv:PerformanceMetric ;
+    pv:name "Power Conversion Efficiency (PCE)" ;
+    pv:description "Ratio of maximum electrical power output to incident solar irradiance; primary figure of merit for comparing PV technologies." ;
+    pv:unit "%" ;
+    pv:typicalRange "14-34% for champion research cells" ;
+    pv:measuredBy pv:JVCurve .
+
+pv:Voc a pv:PerformanceMetric ;
+    pv:name "Open-Circuit Voltage (Voc)" ;
+    pv:description "Maximum voltage at zero current; determined by quasi-Fermi level splitting and dominated by non-radiative recombination rate." ;
+    pv:unit "V" ;
+    pv:typicalRange "0.65-1.20 V depending on absorber material" ;
+    pv:measuredBy pv:JVCurve .
+
+pv:Jsc a pv:PerformanceMetric ;
+    pv:name "Short-Circuit Current Density (Jsc)" ;
+    pv:description "Current density at zero applied voltage; proportional to absorbed photon flux and charge collection efficiency." ;
+    pv:unit "mA/cm2" ;
+    pv:typicalRange "15-45 mA/cm2" ;
+    pv:measuredBy pv:JVCurve, pv:EQE .
+
+pv:FF a pv:PerformanceMetric ;
+    pv:name "Fill Factor (FF)" ;
+    pv:description "Ratio of maximum power to the product of Voc and Jsc; reflects series resistance, shunt resistance, and recombination losses." ;
+    pv:unit "dimensionless (0-1)" ;
+    pv:typicalRange "0.70-0.88 for high-performance cells" ;
+    pv:measuredBy pv:JVCurve .
+
+pv:CarrierLifetime a pv:PerformanceMetric ;
+    pv:name "Minority Carrier Lifetime" ;
+    pv:description "Average time before photo-generated minority carriers recombine; high lifetime (milliseconds) required for high Voc and PCE." ;
+    pv:unit "microseconds to milliseconds" ;
+    pv:measuredBy pv:TRPL .
+
+pv:Hysteresis a pv:PerformanceMetric ;
+    pv:name "J-V Hysteresis Index (HI)" ;
+    pv:description "Difference in measured PCE between forward and reverse J-V sweep directions in perovskite cells; caused by ion migration." ;
+    pv:unit "dimensionless" ;
+    pv:measuredBy pv:JVCurve .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  DEGRADATION MECHANISMS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+pv:MoistureIngress a pv:DegradationMechanism ;
+    pv:name "Moisture Ingress" ;
+    pv:description "Water vapour permeation into perovskite layers causes hydration and chemical decomposition of the perovskite structure into PbI2." ;
+    pv:causedBy pv:GrainBoundaryTrap .
+
+pv:ThermalDegradation a pv:DegradationMechanism ;
+    pv:name "Thermal Degradation" ;
+    pv:description "Above 85 degrees C, MAPbI3 decomposes releasing methylamine gas and forming yellow PbI2; accelerated by IEC 61215 damp heat test." ;
+    pv:causedBy pv:PhaseSeparation .
+
+pv:UVDegradation a pv:DegradationMechanism ;
+    pv:name "UV-Induced Degradation" ;
+    pv:description "UV photons generate reactive oxygen species in TiO2 ETL and degrade organic HTL (Spiro-OMeTAD), reducing Voc and FF." ;
+    pv:causedBy pv:InterfaceRecombination .
+
+pv:PID a pv:DegradationMechanism ;
+    pv:name "Potential-Induced Degradation (PID)" ;
+    pv:description "High system voltage drives Na+ ion migration through encapsulant into silicon cells, increasing surface recombination velocity." ;
+    pv:causedBy pv:LID .
+
+pv:IonMigration a pv:DegradationMechanism ;
+    pv:name "Ion Migration" ;
+    pv:description "Mobile halide ions drift under electric field or thermal activation causing J-V hysteresis, interface degradation, and instability." ;
+    pv:causedBy pv:IodideVacancy .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  STANDARD TEST CONDITIONS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+pv:STC a pv:StandardTest ;
+    pv:name "Standard Test Conditions (STC)" ;
+    pv:description "AM1.5G spectrum, 100 mW/cm2 irradiance, 25 degrees C cell temperature as defined in IEC 60904; reference condition for all PV efficiency records." .
+
+pv:NOCT a pv:StandardTest ;
+    pv:name "Nominal Operating Cell Temperature (NOCT)" ;
+    pv:description "800 W/m2 irradiance, 20 degrees C ambient, 1 m/s wind speed; better represents real-world field operating conditions." .
+
+pv:DampHeat a pv:StandardTest ;
+    pv:name "Damp Heat Test (IEC 61215)" ;
+    pv:description "85 degrees C, 85% relative humidity for 1000 hours; assesses moisture resistance and encapsulant integrity of PV modules." .
+
+pv:ThermalCycling a pv:StandardTest ;
+    pv:name "Thermal Cycling Test (IEC 61215)" ;
+    pv:description "200 cycles between -40 degrees C and +85 degrees C; tests mechanical integrity of solder bonds, cell interconnects, and encapsulant adhesion." .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  INSTITUTIONS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+pv:NREL a pv:Institution ;
+    pv:name "NREL (National Renewable Energy Laboratory)" ;
+    pv:description "US Department of Energy national lab; maintains the authoritative solar cell efficiency chart and holds world records across multiple PV categories." ;
+    pv:country "USA" ;
+    pv:founded "1977"^^xsd:gYear .
+
+pv:Fraunhofer_ISE a pv:Institution ;
+    pv:name "Fraunhofer ISE" ;
+    pv:description "Europe's largest solar energy research institute; leaders in silicon heterojunction and III-V concentrator PV technologies." ;
+    pv:country "Germany" ;
+    pv:founded "1981"^^xsd:gYear .
+
+pv:HZB a pv:Institution ;
+    pv:name "Helmholtz-Zentrum Berlin (HZB)" ;
+    pv:description "German research centre co-holding the 33.9% perovskite/silicon tandem world efficiency record." ;
+    pv:country "Germany" ;
+    pv:founded "2009"^^xsd:gYear .
+
+pv:KAUST a pv:Institution ;
+    pv:name "KAUST (King Abdullah University of Science and Technology)" ;
+    pv:description "Saudi Arabian research university; co-holder of the 33.9% perovskite/silicon tandem cell efficiency record." ;
+    pv:country "Saudi Arabia" ;
+    pv:founded "2009"^^xsd:gYear .
+
+pv:EPFL a pv:Institution ;
+    pv:name "EPFL (Ecole Polytechnique Federale de Lausanne)" ;
+    pv:description "Swiss federal university; birthplace of the dye-sensitised solar cell (DSSC) under Prof. Michael Gratzel." ;
+    pv:country "Switzerland" ;
+    pv:founded "1969"^^xsd:gYear .
+
+pv:Oxford_PV a pv:Institution ;
+    pv:name "Oxford PV" ;
+    pv:description "UK spin-out from University of Oxford commercialising perovskite/silicon tandem modules; achieved 28.6% module efficiency." ;
+    pv:country "UK" ;
+    pv:founded "2010"^^xsd:gYear .
+
+pv:FirstSolar a pv:Institution ;
+    pv:name "First Solar" ;
+    pv:description "World's largest CdTe thin-film module manufacturer; leads in utility-scale PV deployment with lowest levelised cost of energy (LCOE)." ;
+    pv:country "USA" ;
+    pv:founded "1999"^^xsd:gYear .
+
+pv:LONGi a pv:Institution ;
+    pv:name "LONGi Green Energy" ;
+    pv:description "World's largest solar cell and module manufacturer; record holder for monocrystalline PERC and TOPCon silicon solar cells." ;
+    pv:country "China" ;
+    pv:founded "2000"^^xsd:gYear .
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  RESEARCHERS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+pv:Gratzel a pv:Researcher ;
+    pv:name "Michael Gratzel" ;
+    pv:description "Inventor of the dye-sensitised solar cell and pioneer of perovskite PV; Professor Emeritus at EPFL and multiple award recipient." ;
+    pv:studiedAt pv:EPFL ;
+    pv:researches pv:MAPbI3, pv:FAPbI3 .
+
+pv:Snaith a pv:Researcher ;
+    pv:name "Henry Snaith" ;
+    pv:description "Oxford University professor who demonstrated the first solid-state perovskite solar cell in 2012; co-founder of Oxford PV." ;
+    pv:studiedAt pv:Oxford_PV ;
+    pv:researches pv:MAPbI3, pv:FAPbI3 .
+
+pv:Miyasaka a pv:Researcher ;
+    pv:name "Tsutomu Miyasaka" ;
+    pv:description "First reported halide perovskite as a PV sensitiser in 2009 achieving 3.8% efficiency; Professor at Toin University of Yokohama, Japan." ;
+    pv:researches pv:MAPbI3 .
+
+pv:Sargent a pv:Researcher ;
+    pv:name "Edward Sargent" ;
+    pv:description "Northwestern University professor; expert in colloidal quantum dot PV and high-efficiency perovskite solar cells." ;
+    pv:researches pv:MAPbI3, pv:FAPbI3 .
+
+pv:Bein a pv:Researcher ;
+    pv:name "Thomas Bein" ;
+    pv:description "Ludwig Maximilian University Munich professor; expert in mesoporous TiO2, perovskite crystallisation, and operando characterisation." ;
+    pv:researches pv:MAPbI3 .

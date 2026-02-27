@@ -1,0 +1,362 @@
+{% extends "base.html" %}
+{% block title %}SolarGraph AI — PV Materials Science Explorer{% endblock %}
+
+{% block body %}
+
+<div class="bg-mesh" aria-hidden="true">
+  <div class="mesh-orb orb1"></div>
+  <div class="mesh-orb orb2"></div>
+  <div class="mesh-orb orb3"></div>
+</div>
+
+<header class="site-header">
+  <div class="logo">
+    <svg class="logo-icon" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="7" fill="#f97316" opacity=".9"/>
+      <path d="M16 2v4M16 26v4M2 16h4M26 16h4" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+      <path d="M6.34 6.34l2.83 2.83M22.83 22.83l2.83 2.83M22.83 9.17l2.83-2.83M6.34 25.66l2.83-2.83" stroke="#f97316" stroke-width="1.8" stroke-linecap="round" opacity=".6"/>
+    </svg>
+    <span class="logo-text">SolarGraph<em>AI</em></span>
+  </div>
+  <nav class="header-nav">
+    <a href="/api/absorbers" target="_blank" class="nav-link">Absorbers</a>
+    <a href="/api/architectures" target="_blank" class="nav-link">Architectures</a>
+    <a href="/api/relationships" target="_blank" class="nav-link">Relations</a>
+    <a href="/api/stats" target="_blank" class="nav-link">API</a>
+    <a href="/graph" class="btn-graph">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="3"/><circle cx="19" cy="5" r="3"/><circle cx="19" cy="19" r="3"/><line x1="8" y1="11" x2="16" y2="6"/><line x1="8" y1="13" x2="16" y2="18"/></svg>
+      View Graph
+    </a>
+  </nav>
+</header>
+
+<main class="main-content">
+
+  <section class="hero">
+    <div class="hero-eyebrow">
+      <span class="eyebrow-dot"></span>
+      PV Solar &amp; Materials Science Engineering
+    </div>
+    <h1 class="hero-title">
+      Explore the Science<br/>
+      <span class="title-gradient">of Solar Energy</span>
+    </h1>
+    <p class="hero-sub">
+      Ask any question about photovoltaic materials, cell architectures, fabrication
+      processes, defects, and performance. The AI answers <em>strictly</em> from a
+      verified RDF knowledge graph — no hallucinations, full provenance.
+    </p>
+  </section>
+
+  <section class="stats-strip" aria-label="Knowledge graph statistics">
+    {% set stat_items = [
+      ("⬡", stats.total_triples, "Triples"),
+      ("◈", stats.absorbers, "Absorbers"),
+      ("◇", stats.cell_architectures, "Architectures"),
+      ("⬖", stats.fabrication_processes, "Processes"),
+      ("◉", stats.characterisation_techniques, "Techniques"),
+      ("▲", stats.defects, "Defects"),
+      ("◎", stats.performance_metrics, "Metrics"),
+      ("⊞", stats.institutions, "Institutions"),
+    ] %}
+    {% for icon, val, label in stat_items %}
+    <div class="stat-chip">
+      <span class="stat-icon">{{ icon }}</span>
+      <span class="stat-num">{{ val }}</span>
+      <span class="stat-label">{{ label }}</span>
+    </div>
+    {% endfor %}
+  </section>
+
+  <section class="arch-cards">
+    <h2 class="section-title">Top Cell Architectures by Record Efficiency</h2>
+    <div class="arch-grid">
+      {% for a in archs %}
+      <div class="arch-card" style="--rank: {{ loop.index }}">
+        <div class="arch-eff">{{ a.efficiency }}%</div>
+        <div class="arch-name">{{ a.name }}</div>
+        <div class="arch-desc">{{ a.description[:110] if a.description else '' }}…</div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="query-section">
+    <div class="query-header">
+      <h2 class="section-title" style="margin:0">Ask the Knowledge Graph</h2>
+      <div class="cache-badge" id="cacheBadge">
+        <span class="cache-dot" id="cacheDot"></span>
+        <span id="cacheLabel">Cache ready</span>
+      </div>
+    </div>
+
+    <div class="query-card">
+      <div class="query-input-wrap">
+        <span class="query-prefix">?</span>
+        <textarea id="queryInput" class="query-input" rows="2"
+          placeholder="e.g. What are the absorber materials and their bandgaps?  ·  Compare PERC, TOPCon, and SHJ efficiencies."></textarea>
+      </div>
+      <div class="query-actions">
+        <div class="quick-prompts">
+          <button class="chip" data-q="List all absorber materials with their bandgap energies and crystal structures.">Absorber materials</button>
+          <button class="chip" data-q="What are all the cell architectures and their record power conversion efficiencies?">Cell efficiencies</button>
+          <button class="chip" data-q="What defects affect perovskite solar cells and which performance metrics do they impact?">Perovskite defects</button>
+          <button class="chip" data-q="What fabrication processes are used to make MAPbI3 perovskite absorbers?">MAPbI3 fabrication</button>
+          <button class="chip" data-q="Which characterisation techniques are used for CIGS solar cells?">CIGS characterisation</button>
+          <button class="chip" data-q="What are the degradation mechanisms in perovskite solar cells?">Degradation mechanisms</button>
+          <button class="chip" data-q="Tell me about the institutions and researchers in the knowledge graph.">Researchers &amp; labs</button>
+          <button class="chip" data-q="What transport layers are compatible with MAPbI3 perovskite?">Transport layers</button>
+        </div>
+        <div class="ask-controls">
+          <label class="mode-toggle" title="ReAct: multi-step tool-use agent with provenance tracing">
+            <input type="checkbox" id="reactToggle"/>
+            <span class="toggle-slider"></span>
+            <span class="toggle-label">ReAct Agent</span>
+          </label>
+          <button id="askBtn" class="ask-btn">
+            <span id="btnText">Ask AI</span>
+            <span class="spinner" id="spinner" hidden></span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Answer panel -->
+  <section class="answer-section" id="answerSection" hidden aria-live="polite">
+    <div class="answer-header">
+      <div class="answer-title-row">
+        <span class="answer-badge" id="answerBadge">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Knowledge Graph Answer
+        </span>
+        <span class="answer-source" id="answerSource">Strictly from the PV Solar RDF graph</span>
+      </div>
+      <button class="clear-btn" id="clearBtn">✕</button>
+    </div>
+    <div class="answer-body" id="answerBody"></div>
+
+    <!-- ReAct steps panel (hidden by default) -->
+    <div id="stepsPanel" hidden>
+      <div class="steps-header">
+        <span class="steps-title">🔍 Agent Reasoning Steps</span>
+        <button class="steps-toggle" id="stepsToggle">Show</button>
+      </div>
+      <div class="steps-body" id="stepsBody" hidden></div>
+    </div>
+
+    <!-- Provenance panel (hidden by default) -->
+    <div id="provPanel" hidden>
+      <div class="prov-header">
+        <span class="prov-title">📋 Provenance &amp; Traceability</span>
+        <button class="prov-toggle" id="provToggle">Show</button>
+      </div>
+      <div class="prov-body" id="provBody" hidden></div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="cta-content">
+      <div class="cta-text-block">
+        <div class="cta-eyebrow">Interactive Visualisation</div>
+        <h2 class="cta-title">Explore the Full Knowledge Graph</h2>
+        <p class="cta-desc">Navigate every material, architecture, defect, and relationship as a live, zoomable network.</p>
+        <a href="/graph" class="cta-btn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="3"/><circle cx="19" cy="5" r="3"/><circle cx="19" cy="19" r="3"/><line x1="8" y1="11" x2="16" y2="6"/><line x1="8" y1="13" x2="16" y2="18"/></svg>
+          Open Graph Viewer
+        </a>
+      </div>
+      <div class="cta-visual" aria-hidden="true">
+        <svg viewBox="0 0 240 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="120" cy="34" r="18" fill="#f97316" opacity=".9"/>
+          <line x1="120" y1="8"  x2="120" y2="2"  stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+          <line x1="120" y1="60" x2="120" y2="66" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+          <line x1="94"  y1="34" x2="88"  y2="34" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+          <line x1="146" y1="34" x2="152" y2="34" stroke="#fbbf24" stroke-width="2" stroke-linecap="round"/>
+          <rect x="40" y="80"  width="160" height="12" rx="3" fill="#94a3b8" opacity=".8"/>
+          <text x="50" y="91"  fill="#0f172a" font-size="8" font-family="sans-serif">Glass / ITO Electrode</text>
+          <rect x="40" y="96"  width="160" height="14" rx="2" fill="#34d399" opacity=".85"/>
+          <text x="50" y="107" fill="#0f172a" font-size="8" font-family="sans-serif">Electron Transport (SnO₂)</text>
+          <rect x="40" y="114" width="160" height="26" rx="2" fill="#f97316" opacity=".9"/>
+          <text x="50" y="128" fill="#fff" font-size="8.5" font-family="sans-serif" font-weight="600">Perovskite Absorber (FAPbI₃)</text>
+          <rect x="40" y="144" width="160" height="14" rx="2" fill="#c084fc" opacity=".85"/>
+          <text x="50" y="155" fill="#0f172a" font-size="8" font-family="sans-serif">Hole Transport (Spiro-OMeTAD)</text>
+          <rect x="40" y="162" width="160" height="12" rx="3" fill="#fbbf24" opacity=".8"/>
+          <text x="50" y="173" fill="#0f172a" font-size="8" font-family="sans-serif">Metal Back Contact (Au / Al)</text>
+          <text x="40" y="194" fill="#475569" font-size="7.5" font-family="sans-serif">p-i-n Inverted Perovskite Stack</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <p>SolarGraph<em>AI</em> · PV Solar &amp; Materials Science Knowledge Graph · RDFLib · SPARQL · Groq · ReAct Agent</p>
+</footer>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const queryInput  = document.getElementById("queryInput");
+const askBtn      = document.getElementById("askBtn");
+const btnText     = document.getElementById("btnText");
+const spinner     = document.getElementById("spinner");
+const answerSec   = document.getElementById("answerSection");
+const answerBody  = document.getElementById("answerBody");
+const answerBadge = document.getElementById("answerBadge");
+const answerSource= document.getElementById("answerSource");
+const clearBtn    = document.getElementById("clearBtn");
+const cacheDot    = document.getElementById("cacheDot");
+const cacheLabel  = document.getElementById("cacheLabel");
+const reactToggle = document.getElementById("reactToggle");
+const stepsPanel  = document.getElementById("stepsPanel");
+const stepsBody   = document.getElementById("stepsBody");
+const stepsToggle = document.getElementById("stepsToggle");
+const provPanel   = document.getElementById("provPanel");
+const provBody    = document.getElementById("provBody");
+const provToggle  = document.getElementById("provToggle");
+
+function updateCacheBadge(cache) {
+  if (!cache) return;
+  const fast = cache.fast_agent || cache;
+  const entries = fast.file_cache_entries || 0;
+  const hits    = fast.lru_hits || 0;
+  cacheLabel.textContent = `Cache: ${entries} stored · ${hits} hits`;
+  cacheDot.style.background = entries > 0 ? "#34d399" : "#475569";
+}
+
+function renderMarkdown(text) {
+  return text
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")
+    .replace(/\*\*(.+?)\*\*/g,"<strong>$1</strong>")
+    .replace(/\*(.+?)\*/g,"<em>$1</em>")
+    .replace(/^### (.+)$/gm,"<h4>$1</h4>")
+    .replace(/^## (.+)$/gm,"<h3>$1</h3>")
+    .replace(/^# (.+)$/gm,"<h2>$1</h2>")
+    .replace(/^\| (.+)$/gm, (m) => `<tr><td>${m.slice(2).split(' | ').join('</td><td>')}</td></tr>`)
+    .replace(/(<tr>.*<\/tr>)/gs, "<table>$1</table>")
+    .replace(/^- (.+)$/gm,"<li>$1</li>")
+    .replace(/(<li>[\s\S]+?<\/li>)/g,"<ul>$1</ul>")
+    .replace(/\n{2,}/g,"</p><p>")
+    .replace(/\n/g,"<br/>")
+    .replace(/^(?!<)/,"<p>").replace(/(?<!>)$/,"</p>");
+}
+
+function renderSteps(steps) {
+  if (!steps || !steps.length) return "<p>No steps recorded.</p>";
+  return steps.map((s, i) => `
+    <div class="step-card">
+      <div class="step-num">Step ${s.iteration || i+1}</div>
+      <div class="step-tool">🔧 <strong>${s.tool}</strong></div>
+      ${s.args && Object.keys(s.args).length ? `<div class="step-args"><code>${JSON.stringify(s.args).slice(0,200)}</code></div>` : ''}
+      <div class="step-result"><em>Result preview:</em> ${(s.result_preview||'').slice(0,250)}</div>
+    </div>
+  `).join('');
+}
+
+function renderProvenance(prov_md) {
+  return renderMarkdown(prov_md || "No provenance data.");
+}
+
+async function ask() {
+  const q = queryInput.value.trim();
+  if (!q) { queryInput.focus(); return; }
+
+  const useReact = reactToggle.checked;
+  const endpoint = useReact ? "/ask/react" : "/ask";
+
+  askBtn.disabled = true;
+  btnText.textContent = useReact ? "Reasoning…" : "Thinking…";
+  spinner.hidden  = false;
+  answerSec.hidden = true;
+  answerBody.innerHTML = "";
+  stepsPanel.hidden = true;
+  provPanel.hidden  = true;
+
+  try {
+    const res  = await fetch(endpoint, {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({query: q}),
+    });
+    const data = await res.json();
+
+    if (data.error) {
+      answerBody.innerHTML = `<p class="answer-error">⚠ ${data.error}</p>`;
+    } else {
+      answerBody.innerHTML = renderMarkdown(data.answer);
+
+      if (useReact) {
+        // Update badge
+        const iters = data.iterations || 1;
+        const cached = data.cached ? " ⚡ cached" : "";
+        answerBadge.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> ReAct Answer · ${iters} step${iters>1?'s':''}${cached}`;
+        answerSource.textContent = "Multi-step tool-use agent with KG provenance";
+
+        // Show steps panel
+        if (data.steps && data.steps.length) {
+          stepsBody.innerHTML = renderSteps(data.steps);
+          stepsPanel.hidden = false;
+        }
+
+        // Show provenance panel
+        if (data.provenance_md) {
+          provBody.innerHTML = renderProvenance(data.provenance_md);
+          provPanel.hidden = false;
+        }
+      } else {
+        answerBadge.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Knowledge Graph Answer`;
+        answerSource.textContent = "Strictly from the PV Solar RDF graph";
+        updateCacheBadge(data.cache);
+      }
+    }
+    answerSec.hidden = false;
+    answerSec.scrollIntoView({behavior:"smooth", block:"nearest"});
+  } catch (err) {
+    answerBody.innerHTML = `<p class="answer-error">Network error: ${err.message}</p>`;
+    answerSec.hidden = false;
+  } finally {
+    askBtn.disabled = false;
+    btnText.textContent = "Ask AI";
+    spinner.hidden  = true;
+  }
+}
+
+// Toggle panels
+stepsToggle.addEventListener("click", () => {
+  const hidden = stepsBody.hidden;
+  stepsBody.hidden  = !hidden;
+  stepsToggle.textContent = hidden ? "Hide" : "Show";
+});
+provToggle.addEventListener("click", () => {
+  const hidden = provBody.hidden;
+  provBody.hidden  = !hidden;
+  provToggle.textContent = hidden ? "Hide" : "Show";
+});
+
+// Update button label when mode changes
+reactToggle.addEventListener("change", () => {
+  btnText.textContent = reactToggle.checked ? "ReAct Ask" : "Ask AI";
+});
+
+askBtn.addEventListener("click", ask);
+queryInput.addEventListener("keydown", e => {
+  if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); ask(); }
+});
+clearBtn.addEventListener("click", () => {
+  answerSec.hidden = true;
+  answerBody.innerHTML = "";
+  queryInput.value = "";
+  stepsPanel.hidden = true;
+  provPanel.hidden  = true;
+  queryInput.focus();
+});
+document.querySelectorAll(".chip").forEach(btn => {
+  btn.addEventListener("click", () => { queryInput.value = btn.dataset.q; ask(); });
+});
+
+fetch("/api/cache/stats").then(r => r.json()).then(updateCacheBadge).catch(()=>{});
+</script>
+{% endblock %}

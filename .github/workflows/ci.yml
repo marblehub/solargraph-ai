@@ -1,0 +1,45 @@
+name: CI
+
+on: [push, pull_request]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11"]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pylint
+
+    - name: Lint with pylint
+      run: |
+        pylint --fail-under=6.0 \
+               --disable=C0114,C0115,C0116,R0903,W0212 \
+               $(git ls-files '*.py') || true
+
+    - name: Build knowledge graph
+      run: python build_graph.py
+
+    - name: Verify KG integrity
+      run: |
+        python -c "
+        from build_graph import load_graph
+        from query_engine import QueryEngine
+        qe  = QueryEngine(load_graph())
+        s   = qe.get_graph_summary()
+        assert s['total_triples'] > 100, f'Too few triples: {s}'
+        assert s['absorbers']     >= 8,  f'Missing absorbers: {s}'
+        print('✅ KG OK:', s)
+        "

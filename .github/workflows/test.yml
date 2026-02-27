@@ -1,0 +1,25 @@
+name: Test
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Build knowledge graph
+        run: python build_graph.py
+      - name: Verify KG integrity
+        run: |
+          python -c "
+          from build_graph import load_graph
+          from query_engine import QueryEngine
+          qe = QueryEngine(load_graph())
+          s  = qe.get_graph_summary()
+          assert s['total_triples'] > 100, f'Too few triples: {s}'
+          assert s['absorbers'] >= 8, f'Missing absorbers: {s}'
+          print('✅ KG OK:', s)
+          "

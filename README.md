@@ -4,7 +4,7 @@
 [![Python](https://img.shields.io/badge/Python-3.10%2B-blue)](https://python.org)
 [![RDFLib](https://img.shields.io/badge/RDFLib-7.0-green)](https://rdflib.readthedocs.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
-[![HuggingFace](https://img.shields.io/badge/🤗-Live%20Demo-orange)](https://huggingface.co/spaces/YOUR_USERNAME/solargraph-ai)
+[![HuggingFace](https://img.shields.io/badge/🤗-Live%20Demo-orange)](https://huggingface.co/spaces/sparklehug/solargraph-ai)
 
 ![SolarGraph AI: Home](docs/images/Screenshot1.png)
 ![SolarGraph AI: Ask](docs/images/Screenshot2.png)

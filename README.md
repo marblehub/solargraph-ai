@@ -10,7 +10,7 @@
 ![SolarGraph AI: Ask](docs/images/Screenshot2.png)
 ![SolarGraph AI: Knowledge Graph](docs/images/Screenshot3.png)
 
-A research prototype demonstrating **grounded LLM agents** over a formal **RDF/OWL knowledge graph** for photovoltaic (PV) solar energy and materials science. Every answer is traceable to specific SPARQL-retrieved triples — no hallucinations, full provenance.
+A research prototype demonstrating **grounded LLM agents** over a formal **RDF/OWL knowledge graph** for photovoltaic (PV) solar energy and materials science. Every answer is traceable to specific SPARQL-retrieved triples with no hallucinations and full provenance.
 
 ---
 
@@ -36,18 +36,18 @@ User Question (natural language)
 │     ReAct Agent (Groq LLM)        │
 │                                   │
 │  while not done:                  │
-│    Thought → select tool          │
-│    Action  → call SPARQL tool     │
-│    Observation → inspect results  │
+│    Thought -> select tool          │
+│    Action  -> call SPARQL tool     │
+│    Observation -> inspect results  │
 │  Final Answer + Provenance Record │
 └──────────────┬────────────────────┘
                │  SPARQL (RDFLib)
                ▼
 ┌───────────────────────────────────┐
 │     PV Solar OWL Ontology         │
-│  13 classes · 13 object props     │
-│  8 data props · 70+ individuals   │
-│  Turtle/RDF · 724 lines           │
+│  13 classes, 13 object props     │
+│  8 data props, 70+ individuals   │
+│  Turtle/RDF, 724 lines           │
 └───────────────────────────────────┘
 ```
 
@@ -77,11 +77,11 @@ User Question (natural language)
 |---|---|
 | **OWL ontology** | 13 classes, subclass hierarchy, domain/range constraints, rdfs:label/comment |
 | **SPARQL engine** | 15+ domain-specific query methods via RDFLib |
-| **Fast agent** | Single-shot RAG: SPARQL context → Groq LLM → answer |
+| **Fast agent** | Single-shot RAG: SPARQL context -> Groq LLM -> answer |
 | **ReAct agent** | Multi-step tool-use loop with up to 6 iterations |
 | **Provenance** | Entity detection + triple lookup + SPARQL audit trail per answer |
 | **Dual-layer cache** | `functools.lru_cache` (in-process) + JSON file (24h TTL) |
-| **Graph visualiser** | Self-contained vis.js CDN network — no 404s |
+| **Graph visualiser** | Self-contained vis.js CDN network - no 404s |
 | **REST API** | `/api/entities`, `/api/absorbers`, `/api/architectures`, `/api/search` |
 | **Gradio UI** | HuggingFace Spaces-compatible interface |
 
@@ -123,7 +123,7 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
 cp .env.example .env        # add GROQ_API_KEY
-python build_graph.py       # parses ontology.ttl → graph.pkl
+python build_graph.py       # parses ontology.ttl -> graph.pkl
 python app.py               # → http://127.0.0.1:5000
 ```
 
@@ -142,7 +142,7 @@ git remote add hf https://huggingface.co/spaces/YOUR_USERNAME/solargraph-ai
 git push hf main
 
 # 3. Add your API key
-#    Space Settings → Secrets → New Secret
+#    Space Settings -> Secrets -> New Secret
 #    Name: GROQ_API_KEY   Value: <your key>
 
 # HuggingFace will auto-detect hf_app.py and launch it
@@ -169,7 +169,7 @@ git push hf main
 
 ## Roadmap
 
-- [ ] OpenAlex literature ingestion pipeline (LLM entity extraction → graph)
+- [ ] OpenAlex literature ingestion pipeline (LLM entity extraction -> graph)
 - [ ] W3C SPARQL 1.1 endpoint via SPARQLWrapper
 - [ ] Ontology alignment with EMMO, MatOnto, BattINFO
 - [ ] DFT/MD simulation data as typed RDF literals
@@ -182,11 +182,11 @@ git push hf main
 
 This project prototype implements the core techniques now appearing in materials science LLM research:
 
-- **Semantic data modelling** — OWL/RDF encodes expert domain knowledge as machine-readable facts
-- **Structured RAG** — SPARQL retrieval replaces unstructured vector search for reproducibility
-- **Agentic tool use** — ReAct loop demonstrates agent control beyond single-prompt engineering
-- **Provenance/traceability** — every answer is auditable back to specific KG triples
-- **Heterogeneous data integration** — architecture supports connecting to simulation databases, literature, and experimental repositories
+- **Semantic data modelling** - OWL/RDF encodes expert domain knowledge as machine-readable facts
+- **Structured RAG** - SPARQL retrieval replaces unstructured vector search for reproducibility
+- **Agentic tool use** - ReAct loop demonstrates agent control beyond single-prompt engineering
+- **Provenance/traceability** - every answer is auditable back to specific KG triples
+- **Heterogeneous data integration** - architecture supports connecting to simulation databases, literature, and experimental repositories
 
 Applicable to: NOMAD, Materials Project, OPTIMADE, AFLOW, and emerging perovskite/battery knowledge graph initiatives.
 
@@ -209,7 +209,7 @@ Applicable to: NOMAD, Materials Project, OPTIMADE, AFLOW, and emerging perovskit
 
 ## License
 
-MIT — see [LICENSE](LICENSE)
+MIT - see [LICENSE](LICENSE)
 
 ---
 

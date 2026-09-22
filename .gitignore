@@ -6,14 +6,14 @@ __pycache__/
 venv/
 *.egg-info/
 
-# App runtime — generated, not source
+# App runtime - generated, not source
 graph.pkl
 cache.json
 react_cache.json
 app.log
 *.log
 
-# Environment — never commit secrets
+# Environment - never commit secrets
 .env
 *.example
 
@@ -29,3 +29,8 @@ Thumbs.db
 .idea/
 
 # ingested_papers.json is intentionally tracked (audit log of what was ingested)
+
+# Package manager artefacts
+.python-version
+pyproject.toml
+uv.lock

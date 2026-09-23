@@ -7,7 +7,7 @@ Provides a clean Python API and a context-builder for the LLM agent.
 
 import logging
 from typing import Any
-from rdflib import ConjunctiveGraph
+from rdflib import ConjunctiveGraph, Literal
 
 log = logging.getLogger(__name__)
 
@@ -16,7 +16,10 @@ PREFIXES = """
     PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
     PREFIX owl:  <http://www.w3.org/2002/07/owl#>
     PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-    PREFIX pv:   <http://example.org/pvsolar#>
+    PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+    PREFIX dcterms: <http://purl.org/dc/terms/>
+    PREFIX qudt: <http://qudt.org/schema/qudt/>
+    PREFIX pv:   <https://w3id.org/pvsolar#>
 """
 
 # Class labels to IRI suffix mapping (for domain lookups)
@@ -75,10 +78,10 @@ class QueryEngine:
         return self._sparql("""
             SELECT ?entity ?type ?name ?description WHERE {
                 ?entity a ?type ;
-                        pv:name ?name .
-                OPTIONAL { ?entity pv:description ?description }
+                        skos:prefLabel ?name .
+                OPTIONAL { ?entity dcterms:description ?description }
                 FILTER(?type != owl:NamedIndividual)
-                FILTER(STRSTARTS(STR(?type), "http://example.org/pvsolar#"))
+                FILTER(STRSTARTS(STR(?type), "https://w3id.org/pvsolar#"))
             }
             ORDER BY ?type ?name
         """)
@@ -87,8 +90,8 @@ class QueryEngine:
         return self._sparql(f"""
             SELECT ?entity ?name ?description WHERE {{
                 ?entity a pv:{class_suffix} ;
-                        pv:name ?name .
-                OPTIONAL {{ ?entity pv:description ?description }}
+                        skos:prefLabel ?name .
+                OPTIONAL {{ ?entity dcterms:description ?description }}
             }}
             ORDER BY ?name
         """)
@@ -97,20 +100,22 @@ class QueryEngine:
         return self._sparql("""
             SELECT ?subjectName ?predLabel ?objectName WHERE {
                 ?s ?p ?o .
-                ?s pv:name ?subjectName .
-                ?o pv:name ?objectName .
+                ?s skos:prefLabel ?subjectName .
+                ?o skos:prefLabel ?objectName .
                 ?p rdfs:label ?predLabel .
             }
             ORDER BY ?subjectName ?predLabel
         """)
 
     def get_entity_details(self, entity_name: str) -> list[dict]:
+        entity_label = Literal(entity_name).n3()
         return self._sparql(f"""
             SELECT ?predLabel ?objectName ?dataValue WHERE {{
-                ?s pv:name "{entity_name}" .
-                ?s ?p ?o .
+                ?s skos:prefLabel ?entityLabel ;
+                   ?p ?o .
+                FILTER(STR(?entityLabel) = {entity_label})
                 OPTIONAL {{ ?p rdfs:label ?predLabel }}
-                OPTIONAL {{ ?o pv:name ?objectName }}
+                OPTIONAL {{ ?o skos:prefLabel ?objectName }}
                 OPTIONAL {{
                     FILTER(isLiteral(?o))
                     BIND(?o as ?dataValue)
@@ -119,17 +124,17 @@ class QueryEngine:
         """)
 
     def search_by_keyword(self, keyword: str) -> list[dict]:
-        kw = keyword.lower()
+        keyword_literal = Literal(keyword.lower()).n3()
         return self._sparql(f"""
             SELECT ?entity ?name ?type ?description WHERE {{
-                ?entity pv:name ?name ;
+                ?entity skos:prefLabel ?name ;
                         a ?type .
-                OPTIONAL {{ ?entity pv:description ?description }}
+                OPTIONAL {{ ?entity dcterms:description ?description }}
                 FILTER(
-                    CONTAINS(LCASE(STR(?name)), "{kw}") ||
-                    CONTAINS(LCASE(STR(?description)), "{kw}")
+                    CONTAINS(LCASE(STR(?name)), {keyword_literal}) ||
+                    CONTAINS(LCASE(STR(?description)), {keyword_literal})
                 )
-                FILTER(STRSTARTS(STR(?type), "http://example.org/pvsolar#"))
+                FILTER(STRSTARTS(STR(?type), "https://w3id.org/pvsolar#"))
             }}
             ORDER BY ?name
         """)
@@ -140,9 +145,9 @@ class QueryEngine:
         return self._sparql("""
             SELECT ?name ?description ?bandgap ?crystal WHERE {
                 ?e a pv:Absorber ;
-                   pv:name ?name .
-                OPTIONAL { ?e pv:description ?description }
-                OPTIONAL { ?e pv:bandgap_eV ?bandgap }
+                   skos:prefLabel ?name .
+                OPTIONAL { ?e dcterms:description ?description }
+                OPTIONAL { ?e pv:bandgap ?bandgap }
                 OPTIONAL { ?e pv:crystalStructure ?crystal }
             }
             ORDER BY ?bandgap
@@ -152,9 +157,9 @@ class QueryEngine:
         return self._sparql("""
             SELECT ?name ?description ?efficiency WHERE {
                 ?e a pv:CellArchitecture ;
-                   pv:name ?name .
-                OPTIONAL { ?e pv:description ?description }
-                OPTIONAL { ?e pv:recordEfficiency_pct ?efficiency }
+                   skos:prefLabel ?name .
+                OPTIONAL { ?e dcterms:description ?description }
+                OPTIONAL { ?e pv:recordEfficiency ?efficiency }
             }
             ORDER BY DESC(?efficiency)
         """)
@@ -163,46 +168,52 @@ class QueryEngine:
         return self._sparql("""
             SELECT ?defectName ?defectDesc ?metricName WHERE {
                 ?d a pv:Defect ;
-                   pv:name ?defectName .
-                OPTIONAL { ?d pv:description ?defectDesc }
+                   skos:prefLabel ?defectName .
+                OPTIONAL { ?d dcterms:description ?defectDesc }
                 OPTIONAL {
                     ?d pv:affectsMetric ?m .
-                    ?m pv:name ?metricName .
+                    ?m skos:prefLabel ?metricName .
                 }
             }
             ORDER BY ?defectName
         """)
 
     def get_materials_for_architecture(self, arch_name: str) -> list[dict]:
+        architecture_label = Literal(arch_name).n3()
         return self._sparql(f"""
             SELECT ?materialName ?materialType ?materialDesc WHERE {{
                 ?m pv:usedIn ?a ;
-                   pv:name ?materialName ;
+                   skos:prefLabel ?materialName ;
                    a ?materialType .
-                ?a pv:name "{arch_name}" .
-                OPTIONAL {{ ?m pv:description ?materialDesc }}
+                ?a skos:prefLabel ?architectureLabel .
+                FILTER(STR(?architectureLabel) = {architecture_label})
+                OPTIONAL {{ ?m dcterms:description ?materialDesc }}
             }}
             ORDER BY ?materialType ?materialName
         """)
 
     def get_fabrication_for_material(self, material_name: str) -> list[dict]:
+        material_label = Literal(material_name).n3()
         return self._sparql(f"""
             SELECT ?processName ?processDesc ?temp WHERE {{
-                ?m pv:name "{material_name}" ;
+                ?m skos:prefLabel ?materialLabel ;
                    pv:fabricatedBy ?p .
-                ?p pv:name ?processName .
-                OPTIONAL {{ ?p pv:description ?processDesc }}
-                OPTIONAL {{ ?p pv:deposition_temp_C ?temp }}
+                FILTER(STR(?materialLabel) = {material_label})
+                ?p skos:prefLabel ?processName .
+                OPTIONAL {{ ?p dcterms:description ?processDesc }}
+                OPTIONAL {{ ?p pv:depositionTemperature ?temp }}
             }}
         """)
 
     def get_characterisation_for_material(self, material_name: str) -> list[dict]:
+        material_label = Literal(material_name).n3()
         return self._sparql(f"""
             SELECT ?techName ?techDesc WHERE {{
-                ?m pv:name "{material_name}" ;
+                ?m skos:prefLabel ?materialLabel ;
                    pv:characterisedBy ?t .
-                ?t pv:name ?techName .
-                OPTIONAL {{ ?t pv:description ?techDesc }}
+                FILTER(STR(?materialLabel) = {material_label})
+                ?t skos:prefLabel ?techName .
+                OPTIONAL {{ ?t dcterms:description ?techDesc }}
             }}
         """)
 
@@ -210,11 +221,11 @@ class QueryEngine:
         return self._sparql("""
             SELECT ?resName ?resDesc ?instName ?instCountry WHERE {
                 ?r a pv:Researcher ;
-                   pv:name ?resName .
-                OPTIONAL { ?r pv:description ?resDesc }
+                   skos:prefLabel ?resName .
+                OPTIONAL { ?r dcterms:description ?resDesc }
                 OPTIONAL {
                     ?r pv:studiedAt ?i .
-                    ?i pv:name ?instName ;
+                    ?i skos:prefLabel ?instName ;
                        pv:country ?instCountry .
                 }
             }
@@ -225,8 +236,8 @@ class QueryEngine:
         return self._sparql("""
             SELECT ?name ?description ?country ?founded WHERE {
                 ?e a pv:Institution ;
-                   pv:name ?name .
-                OPTIONAL { ?e pv:description ?description }
+                   skos:prefLabel ?name .
+                OPTIONAL { ?e dcterms:description ?description }
                 OPTIONAL { ?e pv:country ?country }
                 OPTIONAL { ?e pv:founded ?founded }
             }
@@ -237,9 +248,9 @@ class QueryEngine:
         return self._sparql("""
             SELECT ?name ?description ?unit ?range WHERE {
                 ?e a pv:PerformanceMetric ;
-                   pv:name ?name .
-                OPTIONAL { ?e pv:description ?description }
-                OPTIONAL { ?e pv:unit ?unit }
+                   skos:prefLabel ?name .
+                OPTIONAL { ?e dcterms:description ?description }
+                OPTIONAL { ?e qudt:hasUnit ?unit }
                 OPTIONAL { ?e pv:typicalRange ?range }
             }
             ORDER BY ?name
@@ -249,23 +260,25 @@ class QueryEngine:
         return self._sparql("""
             SELECT ?mechName ?mechDesc ?defectName WHERE {
                 ?m a pv:DegradationMechanism ;
-                   pv:name ?mechName .
-                OPTIONAL { ?m pv:description ?mechDesc }
+                   skos:prefLabel ?mechName .
+                OPTIONAL { ?m dcterms:description ?mechDesc }
                 OPTIONAL {
                     ?m pv:causedBy ?d .
-                    ?d pv:name ?defectName .
+                    ?d skos:prefLabel ?defectName .
                 }
             }
             ORDER BY ?mechName
         """)
 
     def get_compatible_materials(self, material_name: str) -> list[dict]:
+        material_label = Literal(material_name).n3()
         return self._sparql(f"""
             SELECT ?compName ?compDesc WHERE {{
-                ?m pv:name "{material_name}" ;
+                ?m skos:prefLabel ?materialLabel ;
                    pv:compatibleWith ?c .
-                ?c pv:name ?compName .
-                OPTIONAL {{ ?c pv:description ?compDesc }}
+                FILTER(STR(?materialLabel) = {material_label})
+                ?c skos:prefLabel ?compName .
+                OPTIONAL {{ ?c dcterms:description ?compDesc }}
             }}
         """)
 

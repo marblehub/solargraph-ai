@@ -29,7 +29,7 @@ TOOLS = [
             "name": "sparql_query",
             "description": (
                 "Execute a SPARQL SELECT query against the PV Solar knowledge graph. "
-                "Always use: PREFIX pv: <http://example.org/pvsolar#>. "
+                "Always use: PREFIX pv: <https://w3id.org/pvsolar#>. "
                 "Returns a JSON list of result rows."
             ),
             "parameters": {
@@ -49,7 +49,7 @@ TOOLS = [
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "entity_name": {"type": "string", "description": "The pv:name value, e.g. 'MAPbI3' or 'PERC (Passivated Emitter and Rear Cell)'"}
+                    "entity_name": {"type": "string", "description": "The skos:prefLabel value, e.g. 'MAPbI3' or 'PERC (Passivated Emitter and Rear Cell)'"}
                 },
                 "required": ["entity_name"]
             }
@@ -159,7 +159,8 @@ def _execute_tool(name: str, args: dict, qe: QueryEngine) -> str:
 
 
 class ReActAgent:
-    def __init__(self, query_engine: QueryEngine, model: str = "llama-3.1-8b-instant"):
+    #def __init__(self, query_engine: QueryEngine, model: str = "llama-3.1-8b-instant"):
+    def __init__(self, query_engine: QueryEngine, model: str = "openai/gpt-oss-20b"):
         api_key = os.getenv("GROQ_API_KEY")
         if not api_key:
             raise EnvironmentError("GROQ_API_KEY not set.")

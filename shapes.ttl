@@ -1,0 +1,154 @@
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:  <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix sh:   <http://www.w3.org/ns/shacl#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix pv: <https://w3id.org/pvsolar#> .
+
+<https://w3id.org/pvsolar/shapes> a owl:Ontology ;
+    owl:versionIRI <https://w3id.org/pvsolar/shapes/1.0.0> ;
+    owl:versionInfo "1.0.0" ;
+    dcterms:title "PV Solar SHACL Shapes"@en ;
+    dcterms:creator "Whyte Goodfriend: https://orcid.org/0000-0002-5152-095X" ;
+    dcterms:license <https://opensource.org/license/mit/> .
+
+pv:DomainEntityShape a sh:NodeShape ;
+    sh:targetClass pv:Absorber,
+                   pv:TransportLayer,
+                   pv:Electrode,
+                   pv:Encapsulant,
+                   pv:CellArchitecture,
+                   pv:FabricationProcess,
+                   pv:CharacterisationTechnique,
+                   pv:Defect,
+                   pv:PerformanceMetric,
+                   pv:DegradationMechanism,
+                   pv:Institution,
+                   pv:Researcher,
+                   pv:StandardTest ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:uniqueLang true ;
+        sh:languageIn ( "en" )
+    ] ;
+    sh:property [
+        sh:path skos:prefLabel ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:uniqueLang true ;
+        sh:languageIn ( "en" )
+    ] ;
+    sh:property [
+        sh:path dcterms:description ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:string
+    ] ;
+    sh:sparql [
+        sh:message "Every literal data assertion must have RDF statement provenance with source, agent, and timestamp."@en ;
+        sh:select """
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX prov: <http://www.w3.org/ns/prov#>
+            SELECT $this ?path ?value
+            WHERE {
+                $this ?path ?value .
+                FILTER(isLiteral(?value))
+                FILTER NOT EXISTS {
+                    ?statement a rdf:Statement ;
+                        rdf:subject $this ;
+                        rdf:predicate ?path ;
+                        rdf:object ?value ;
+                        prov:wasDerivedFrom ?source ;
+                        prov:wasAttributedTo ?agent ;
+                        prov:generatedAtTime ?time .
+                }
+            }
+        """
+    ] .
+
+pv:SemiconductorShape a sh:NodeShape ;
+    sh:targetClass pv:Semiconductor ;
+    sh:property [
+        sh:path pv:bandgap ;
+        sh:datatype xsd:decimal ;
+        sh:minExclusive 0
+    ] .
+
+pv:CellArchitectureShape a sh:NodeShape ;
+    sh:targetClass pv:CellArchitecture ;
+    sh:property [
+        sh:path pv:recordEfficiency ;
+        sh:datatype xsd:decimal ;
+        sh:minInclusive 0 ;
+        sh:maxInclusive 100
+    ] .
+
+pv:FabricationProcessShape a sh:NodeShape ;
+    sh:targetClass pv:FabricationProcess ;
+    sh:property [
+        sh:path pv:depositionTemperature ;
+        sh:datatype xsd:decimal
+    ] .
+
+pv:PerformanceMetricShape a sh:NodeShape ;
+    sh:targetClass pv:PerformanceMetric ;
+    sh:property [
+        sh:path qudt:hasUnit ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI
+    ] .
+
+pv:ReportedValueShape a sh:NodeShape ;
+    sh:targetObjectsOf pv:hasReportedValue ;
+    sh:class qudt:QuantityValue ;
+    sh:property [
+        sh:path qudt:numericValue ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:decimal
+    ] ;
+    sh:property [
+        sh:path qudt:hasUnit ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI
+    ] ;
+    sh:property [
+        sh:path prov:wasDerivedFrom ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI
+    ] .
+
+pv:UnitAnnotatedPropertyShape a sh:NodeShape ;
+    sh:targetNode pv:bandgap,
+                  pv:recordEfficiency,
+                  pv:depositionTemperature,
+                  pv:irradiance,
+                  pv:cellTemperature,
+                  pv:testTemperature,
+                  pv:onsetTemperature,
+                  pv:ambientTemperature,
+                  pv:windSpeed,
+                  pv:relativeHumidity,
+                  pv:duration,
+                  pv:minimumTemperature,
+                  pv:maximumTemperature,
+                  pv:cycleCount ;
+    sh:property [
+        sh:path qudt:hasQuantityKind ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI
+    ] ;
+    sh:property [
+        sh:path qudt:hasUnit ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:nodeKind sh:IRI
+    ] .

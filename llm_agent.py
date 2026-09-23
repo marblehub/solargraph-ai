@@ -107,7 +107,8 @@ def make_cached_context_builder(qe: QueryEngine):
 # ═══════════════════════════════════════════════════════════════════════════════
 
 class LLMAgent:
-    def __init__(self, query_engine: QueryEngine, model: str = "llama-3.1-8b-instant"):
+    #def __init__(self, query_engine: QueryEngine, model: str = "llama-3.1-8b-instant"):
+    def __init__(self, query_engine: QueryEngine, model: str = "openai/gpt-oss-20b"):
         api_key = os.getenv("GROQ_API_KEY")
         if not api_key:
             raise EnvironmentError(

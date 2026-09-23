@@ -1,5 +1,5 @@
 # Deployment Guide
-## SolarGraph AI — Local · GitHub · HuggingFace Spaces
+## SolarGraph AI - Local. GitHub. HuggingFace Spaces
 
 ---
 
@@ -7,13 +7,16 @@
 
 ```
 kg_project/
-├── ontology.ttl              # OWL ontology (724 lines, Turtle/RDF)
-├── build_graph.py            # parse TTL → graph.pkl
+├── ontology.ttl              # OWL TBox, PMDco alignment, QUDT unit semantics
+├── data.ttl                  # Curated ABox individuals + statement-level PROV-O
+├── ingested_data.ttl         # Optional persisted literature ABox, created on ingestion
+├── shapes.ttl                # SHACL validation rules
+├── build_graph.py            # parse TBox/ABox, validate SHACL -> graph.pkl
 ├── query_engine.py           # 15+ SPARQL query methods
 ├── llm_agent.py              # fast single-shot agent (LRU + file cache)
 ├── react_agent.py            # ReAct multi-step tool-use agent
 ├── provenance.py             # triple-level answer provenance
-├── ingest_literature.py      # OpenAlex → LLM → RDF pipeline
+├── ingest_literature.py      # OpenAlex -> LLM -> RDF pipeline
 ├── app.py                    # Flask web app (all routes)
 ├── hf_app.py                 # Gradio app for HuggingFace Spaces
 ├── visualize.py              # vis.js self-contained graph HTML generator
@@ -43,6 +46,9 @@ kg_project/
 ## 2. Local Setup
 
 ### 2a. Ensure all files exist in your project folder
+- `ontology.ttl`
+- `data.ttl`
+- `shapes.ttl`
 - `app.py`
 - `react_agent.py`
 - `provenance.py`
@@ -59,24 +65,23 @@ kg_project/
 ### 2b. Install dependencies
 
 ```bash
-cd kg_project
+cd solargraph-ai
 source .venv/bin/activate          # or: .venv\Scripts\activate on Windows
 
-pip install -r requirements.txt    # installs requests and gradio (new additions)
+pip install -r requirements.txt    # includes RDFLib and pySHACL
 ```
 
-### 2c. Clear stale cache and rebuild graph
-
-**Always do this after updating any files:**
+### 2c. Validate and build the graph
 
 ```bash
-rm -f graph.pkl cache.json react_cache.json
 python build_graph.py
 ```
 
+The command loads `ontology.ttl`, `data.ttl`, and optional `ingested_data.ttl`, validates the combined graph against `shapes.ttl`, and writes `graph.pkl`. `load_graph()` also rebuilds the pickle automatically when any source file is newer.
+
 Expected output:
 ```
-✅  PV Solar graph built — XXXX triples saved to graph.pkl
+✅  PV Solar graph built, validated, and saved (XXXX triples).
 ```
 
 ### 2d. Test the literature ingestion (optional but recommended)
@@ -124,7 +129,7 @@ curl -X POST http://127.0.0.1:5000/api/ingest \
 ### 3a. Initialise repository
 
 ```bash
-cd kg_project
+cd solargraph-ai
 git init
 git add .
 git commit -m "feat: PV Solar KG with ReAct agent, provenance, and literature ingestion"
@@ -161,8 +166,8 @@ jobs:
 ### 3d. Future updates workflow
 
 ```bash
-# Make changes to any file, then:
-rm -f graph.pkl cache.json react_cache.json   # clear stale caches
+# Make changes, then clear answer caches if query semantics changed:
+rm -f cache.json react_cache.json
 git add .
 git commit -m "feat: describe your change"
 git push origin main
@@ -216,14 +221,14 @@ git push hf main
 
 # Option B: Clone HF Space repo and copy files
 git clone https://huggingface.co/spaces/YOUR_USERNAME/solargraph-ai hf_space
-cp -r kg_project/. hf_space/
+cp -r solargraph-ai/. hf_space/
 cd hf_space
 git add . && git commit -m "Initial deploy" && git push
 ```
 
 ### 4d. Add API key as a Secret
 
-1. Go to your Space page → **Settings** tab → **Repository secrets**
+1. Go to your Space page -> **Settings** tab -> **Repository secrets**
 2. Click **New Secret**:
    - Name: `GROQ_API_KEY`
    - Value: your key from console.groq.com
@@ -299,9 +304,9 @@ The ingestion pipeline:
 1. Hits OpenAlex free API (no key required)
 2. Reconstructs abstracts from OpenAlex inverted-index format
 3. Sends each paper's title + abstract to Groq LLM for structured entity extraction
-4. Converts extracted entities into typed RDF triples
-5. Adds `lit:mentionedIn` provenance links connecting entities to paper nodes
-6. Re-pickles the graph and regenerates `graph.html`
+4. Converts extracted entities into schema-aligned RDF triples using the persistent PV namespace
+5. Adds PROV-O-backed RDF statements for every extracted literal and QUDT quantity values for supported reported metrics
+6. Runs SHACL validation, persists additions to `ingested_data.ttl`, then re-pickles the graph and regenerates `graph.html`
 7. Logs every ingested paper to `ingested_papers.json` (skips duplicates on re-run)
 
 ---
@@ -310,10 +315,11 @@ The ingestion pipeline:
 
 | Problem | Fix |
 |---|---|
-| `0 nodes, 0 edges` in graph | Delete `graph.pkl` and restart — old pickle from previous ontology |
-| `ModuleNotFoundError: rdflib` | Run `pip install -r requirements.txt` inside venv |
-| `GROQ_API_KEY not set` | Add key to `.env` file or HF Secrets |
-| Graph HTML 404 lib errors | You have old PyVis-generated HTML — delete `templates/graph.html` and restart |
+| `0 nodes, 0 edges` in graph | Run `python build_graph.py`; source changes now invalidate stale pickles automatically |
+| `ModuleNotFoundError: rdflib` or `pyshacl` | Run `pip install -r requirements.txt` inside venv |
+| `GROQ_API_KEY not set` | Add the required key to `.env` or HF Secrets |
+| OpenAlex returns HTTP 429 | Add an optional free `OPENALEX_API_KEY` to `.env`; the client also retries transient limits |
+| Graph HTML 404 lib errors | You have old PyVis-generated HTML - delete `templates/graph.html` and restart |
 | `requests` not found | `pip install requests` or reinstall from `requirements.txt` |
 | HF Space fails to build | Check `requirements.txt` has `gradio>=4.0`; check YAML front-matter in Space README |
-| ReAct agent takes too long | Normal — it runs up to 6 LLM+tool iterations. Results are cached after first run. |
+| ReAct agent takes too long | Normal - it runs up to 6 LLM+tool iterations. Results are cached after first run. |

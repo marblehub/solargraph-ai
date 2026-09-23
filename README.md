@@ -44,10 +44,11 @@ User Question (natural language)
                │  SPARQL (RDFLib)
                ▼
 ┌───────────────────────────────────┐
-│     PV Solar OWL Ontology         │
-│  13 classes, 13 object props     │
-│  8 data props, 70+ individuals   │
-│  Turtle/RDF, 724 lines           │
+│ PV Solar Semantic Knowledge Graph │
+│ ontology.ttl  — OWL TBox          │
+│ data.ttl      — RDF ABox + PROV-O │
+│ shapes.ttl    — SHACL validation  │
+│ PMDco alignment + QUDT units      │
 └───────────────────────────────────┘
 ```
 
@@ -61,7 +62,7 @@ User Question (natural language)
 |---|---|---|
 | Absorber | 8 | c-Si (1.12 eV), MAPbI₃ (1.55 eV), FAPbI₃ (1.48 eV), CIGS (1.15 eV), CdTe (1.44 eV) |
 | CellArchitecture | 12 | PERC 24.5%, TOPCon 26.1%, SHJ 26.8%, Perovskite/Si Tandem 33.9% |
-| FabricationProcess | 13 | Czochralski, PECVD, Spin Coating, Slot-Die, Co-Evaporation |
+| FabricationProcess | 12 | Czochralski, PECVD, Spin Coating, Slot-Die, Co-Evaporation |
 | CharacterisationTechnique | 10 | J-V, EQE, TRPL, XRD, SEM, TEM, DLTS, PL, EL |
 | Defect | 7 | Iodide Vacancy, Grain Boundary Traps, Phase Separation (α→δ FAPbI₃) |
 | PerformanceMetric | 6 | PCE, Voc, Jsc, FF, Carrier Lifetime, Hysteresis Index |
@@ -75,11 +76,13 @@ User Question (natural language)
 
 | Feature | Implementation |
 |---|---|
-| **OWL ontology** | 13 classes, subclass hierarchy, domain/range constraints, rdfs:label/comment |
+| **OWL ontology** | Versioned TBox at `https://w3id.org/pvsolar`, with PMDco mappings and disjointness axioms |
+| **QUDT units** | Unit-neutral property names annotated with QUDT quantity kinds and unit IRIs |
+| **SHACL validation** | Labels, numeric ranges, unit annotations, and statement provenance checked at build time |
 | **SPARQL engine** | 15+ domain-specific query methods via RDFLib |
 | **Fast agent** | Single-shot RAG: SPARQL context -> Groq LLM -> answer |
 | **ReAct agent** | Multi-step tool-use loop with up to 6 iterations |
-| **Provenance** | Entity detection + triple lookup + SPARQL audit trail per answer |
+| **Provenance** | PROV-O-backed RDF statements for every domain literal plus answer-level audit trails |
 | **Dual-layer cache** | `functools.lru_cache` (in-process) + JSON file (24h TTL) |
 | **Graph visualiser** | Self-contained vis.js CDN network - no 404s |
 | **REST API** | `/api/entities`, `/api/absorbers`, `/api/architectures`, `/api/search` |
@@ -90,23 +93,24 @@ User Question (natural language)
 ## Ontology Sample
 
 ```turtle
-# Subclass hierarchy
-pv:Absorber rdfs:subClassOf pv:Semiconductor .
-pv:Semiconductor rdfs:subClassOf pv:Material .
+@prefix pv: <https://w3id.org/pvsolar#> .
+@prefix pmd: <https://w3id.org/pmd/co/> .
+@prefix qudt: <http://qudt.org/schema/qudt/> .
+@prefix unit: <http://qudt.org/vocab/unit/> .
+@prefix quantitykind: <http://qudt.org/vocab/quantitykind/> .
 
-# Object property with domain/range
-pv:hasDefect a owl:ObjectProperty ;
-    rdfs:domain pv:Semiconductor ;
-    rdfs:range  pv:Defect .
+# TBox: PMDco alignment and a unit-neutral QUDT property
+pv:Material rdfs:subClassOf pmd:PMD_0000000 .
+pv:bandgap a owl:DatatypeProperty ;
+    qudt:hasQuantityKind quantitykind:EnergyLevel ;
+    qudt:hasUnit unit:EV .
 
-# Individual with typed literals and relationships
+# ABox: standard labels and values; data.ttl also reifies each literal with PROV-O
 pv:MAPbI3 a pv:Absorber ;
-    pv:name          "Methylammonium Lead Iodide (MAPbI3)" ;
-    pv:bandgap_eV    "1.55"^^xsd:decimal ;
-    pv:crystalStructure "Cubic ABX3 perovskite" ;
-    pv:hasDefect     pv:IodideVacancy, pv:GrainBoundaryTrap ;
-    pv:fabricatedBy  pv:SpinCoating, pv:SlotDieCoating ;
-    pv:characterisedBy pv:XRD, pv:PL, pv:TRPL, pv:SEM .
+    rdfs:label "Methylammonium Lead Iodide (MAPbI3)"@en ;
+    skos:prefLabel "Methylammonium Lead Iodide (MAPbI3)"@en ;
+    pv:bandgap "1.55"^^xsd:decimal ;
+    pv:hasDefect pv:IodideVacancy, pv:GrainBoundaryTrap .
 ```
 
 ---
@@ -122,12 +126,12 @@ cd solargraph-ai
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
-cp .env.example .env        # add GROQ_API_KEY
-python build_graph.py       # parses ontology.ttl -> graph.pkl
+cp .env.example .env        # add GROQ_API_KEY; OPENALEX_API_KEY is optional
+python build_graph.py       # loads TBox + ABox, validates SHACL, writes graph.pkl
 python app.py               # → http://127.0.0.1:5000
 ```
 
-> After any change to `ontology.ttl`, delete `graph.pkl` and `cache.json` before restarting.
+> `load_graph()` automatically rebuilds stale `graph.pkl` files when `ontology.ttl`, `data.ttl`, optional `ingested_data.ttl`, or `shapes.ttl` changes. Clear answer caches after semantic changes.
 
 ---
 
@@ -169,9 +173,9 @@ git push hf main
 
 ## Roadmap
 
-- [ ] OpenAlex literature ingestion pipeline (LLM entity extraction -> graph)
+- [x] OpenAlex literature ingestion pipeline (LLM entity extraction -> graph)
 - [ ] W3C SPARQL 1.1 endpoint via SPARQLWrapper
-- [ ] Ontology alignment with EMMO, MatOnto, BattINFO
+- [x] Core ontology alignment with PMDco and QUDT
 - [ ] DFT/MD simulation data as typed RDF literals
 - [ ] LangGraph-based workflow orchestration
 - [ ] Evaluation benchmark: answer accuracy vs. ground-truth triples
@@ -196,7 +200,7 @@ Applicable to: NOMAD, Materials Project, OPTIMADE, AFLOW, and emerging perovskit
 
 | Layer | Technology |
 |---|---|
-| Ontology | OWL 2 / Turtle RDF |
+| Ontology | OWL 2 / Turtle RDF, PMDco 3.1.1, QUDT, PROV-O, SHACL |
 | Graph engine | RDFLib 7 + SPARQL 1.1 |
 | LLM provider | Groq API (llama3-70b-8192) |
 | Agent framework | Custom ReAct loop |

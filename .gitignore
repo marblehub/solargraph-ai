@@ -16,6 +16,7 @@ app.log
 # Environment - never commit secrets
 .env
 *.example
+.env.example
 
 # PyVis leftover local vis.js library (CDN is used instead)
 lib/

@@ -1,5 +1,6 @@
 flask>=3.0
 rdflib>=7.0
+pyshacl>=0.30
 groq>=0.9
 python-dotenv>=1.0
 requests>=2.31

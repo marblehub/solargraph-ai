@@ -17,7 +17,7 @@
     owl:versionInfo "1.0.0" ;
     dcterms:title "PV Solar and Materials Science Engineering Ontology"@en ;
     dcterms:description "A PMDco-aligned ontology for photovoltaic materials, devices, processes, characterisation, defects, performance, degradation, tests, institutions, and researchers."@en ;
-    dcterms:creator "Whyte Goodfriend: https://orcid.org/0000-0002-5152-095X" ;
+    dcterms:creator <https://orcid.org/0000-0002-5152-095X> ;
     dcterms:created "2026-09-23"^^xsd:date ;
     dcterms:modified "2026-09-23"^^xsd:date ;
     dcterms:license <https://opensource.org/license/mit/> ;
@@ -84,7 +84,7 @@ pv:CharacterisationTechnique a owl:Class ;
     rdfs:label "Characterisation Technique"@en ;
     skos:prefLabel "Characterisation Technique"@en ;
     skos:altLabel "Characterization Technique"@en ;  # US spelling
-    skos:altLabel "Characterisation Method"@en .
+    skos:altLabel "Characterisation Method"@en ;
     rdfs:comment "Experimental method for measuring material or device properties." .
 
 pv:Defect a owl:Class ;

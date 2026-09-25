@@ -13,7 +13,7 @@
     owl:versionIRI <https://w3id.org/pvsolar/shapes/1.0.0> ;
     owl:versionInfo "1.0.0" ;
     dcterms:title "PV Solar SHACL Shapes"@en ;
-    dcterms:creator "Whyte Goodfriend: https://orcid.org/0000-0002-5152-095X" ;
+    dcterms:creator <https://orcid.org/0000-0002-5152-095X> ;
     dcterms:license <https://opensource.org/license/mit/> .
 
 pv:DomainEntityShape a sh:NodeShape ;
@@ -123,6 +123,39 @@ pv:ReportedValueShape a sh:NodeShape ;
         sh:path prov:wasDerivedFrom ;
         sh:minCount 1 ;
         sh:nodeKind sh:IRI
+    ] ;
+    sh:property [
+        sh:path prov:wasAttributedTo ;
+        sh:minCount 1 ;
+        sh:nodeKind sh:IRI
+    ] ;
+    sh:property [
+        sh:path prov:generatedAtTime ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:datatype xsd:dateTime
+    ] ;
+    sh:sparql [
+        sh:message "Every reported numeric value must have matching RDF statement provenance."@en ;
+        sh:select """
+            PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX prov: <http://www.w3.org/ns/prov#>
+            PREFIX qudt: <http://qudt.org/schema/qudt/>
+            SELECT $this ?path ?value
+            WHERE {
+                $this ?path ?value .
+                FILTER(?path = qudt:numericValue)
+                FILTER NOT EXISTS {
+                    ?statement a rdf:Statement ;
+                        rdf:subject $this ;
+                        rdf:predicate ?path ;
+                        rdf:object ?value ;
+                        prov:wasDerivedFrom ?source ;
+                        prov:wasAttributedTo ?agent ;
+                        prov:generatedAtTime ?time .
+                }
+            }
+        """
     ] .
 
 pv:UnitAnnotatedPropertyShape a sh:NodeShape ;

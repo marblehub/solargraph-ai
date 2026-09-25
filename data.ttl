@@ -14,14 +14,19 @@
     owl:versionIRI <https://w3id.org/pvsolar/data/1.0.0> ;
     owl:versionInfo "1.0.0" ;
     dcterms:title "PV Solar Knowledge Graph Data"@en ;
-    dcterms:creator pv:Whyte Goodfriend (https://orcid.org/0000-0002-5152-095X) ;
+    dcterms:creator <https://orcid.org/0000-0002-5152-095X> ;
     dcterms:created "2026-09-23"^^xsd:date ;
     dcterms:license <https://opensource.org/license/mit/> ;
     owl:imports <https://w3id.org/pvsolar> ;
-    prov:wasAttributedTo pv:Whyte Goodfriend ;
+    prov:wasAttributedTo <https://orcid.org/0000-0002-5152-095X> ;
     prov:generatedAtTime "2026-09-23T00:00:00Z"^^xsd:dateTime .
 
-pv:Whyte Goodfriend a prov:Organization ;
+<https://orcid.org/0000-0002-5152-095X> a prov:Person ;
+    rdfs:label "Whyte Goodfriend"@en ;
+    skos:prefLabel "Whyte Goodfriend"@en ;
+    prov:actedOnBehalfOf pv:Marblehub .
+
+pv:Marblehub a prov:Organization ;
     rdfs:label "Marblehub"@en ;
     skos:prefLabel "Marblehub"@en .
 
@@ -29,7 +34,7 @@ pv:CuratedSolarGraphDataset a prov:Entity ;
     rdfs:label "Curated SolarGraph dataset release 1.0.0"@en ;
     skos:prefLabel "Curated SolarGraph dataset release 1.0.0"@en ;
     dcterms:license <https://opensource.org/license/mit/> ;
-    prov:wasAttributedTo pv:Whyte Goodfriend ;
+    prov:wasAttributedTo pv:Marblehub ;
     prov:generatedAtTime "2026-09-23T00:00:00Z"^^xsd:dateTime .
 
 # ═══════════════════════════════════════════════════════════════════════════════
